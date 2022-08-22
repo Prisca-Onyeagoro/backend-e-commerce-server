@@ -1,21 +1,37 @@
-import Express from 'express';
-import Cors from 'cors';
-import Bodyparser from 'body-parser';
+import express from 'express';
+import colors from 'colors';
+import Product from './Routes/Products.js';
+//import the database
+import connectDB from './Config/Db.js';
+import dotenv from 'dotenv';
+import Error from './middlewares/Error.js';
+// handle the uncaught exceptions
+// process.on(`uncaughtException`, (err) => {
+//   console.log(`Error: ${err.stack}`);
+//   console.log(`Shutting down server due to uncaught exceptions`);
+//   process.exist(1);
+// });
 
-import connectDB from './Database/Db.js';
-import Posts from './Routes/Posts/Posts.js';
+const app = express();
+const PORT = process.env.PORT || 4000;
+dotenv.config({ path: 'server/.env' });
 
-const app = Express();
-const PORT = process.env.PORT || 4000; // PORT on server
+//middlewares
+app.use(express.json());
+app.use('/api/v1', Product);
+// middleware to handle error
+app.use(Error);
 
-app.use(Bodyparser.json({ limit: '30mb', extended: true }));
-app.use(Bodyparser.urlencoded({ limit: '30mb', extended: true }));
-app.use(Express.json());
-//middleware
-app.use(Cors());
-
-app.use('/post', Posts);
 app.listen(PORT, () => {
-  console.log(`App is listening on Port: ${PORT}`);
+  console.log(`Server is serving on Port: ${PORT}`);
   connectDB();
 });
+
+// handle unhandled promise rejections
+// process.on('unhandledRejection', (err) => {
+//   console.log(`Error: ${err.message}`);
+//   console.log(`Shutting down the server due to unhandled promise rejections`);
+//   server.close(() => {
+//     process.exist(1);
+//   });
+// });
